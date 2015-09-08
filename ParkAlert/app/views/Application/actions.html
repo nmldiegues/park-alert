@@ -1,0 +1,535 @@
+#{extends 'main.html' /}
+
+<script src="http://js.sapo.pt/Bundles/SAPOMapsAPI.js" type="text/javascript" charset="utf-8"></script>
+
+<script type="text/javascript">
+
+var NotificationDropdown = {
+    init: function () {
+        var a = document.getElementById('notification-hover-link');
+        if (!a) {
+            return
+        }
+	a.down = false;
+	a.onclick = (function () {
+		if (a.down) {
+			$(this).parent().removeClass("down active");
+			a.down = false;
+		} else {
+			document.getElementById("notification-hover-link").style.color = "#C4C4C4";
+			$('#notification-hover-link').text("eventos");
+			var b = $(this).parent().addClass("down active");
+			a.down = true;
+
+			(function($){
+			       $.fn.outside = function(ename, cb){
+				  return this.each(function(){
+				     var $this = $(this),
+					 self = this;
+				     $(document.body).bind(ename, function tempo(e){
+					 if(e.target !== self && !$.contains(self, e.target)){
+					    cb.apply(self, [e]);
+					    if(!self.parentNode) $(document.body).unbind(ename, tempo);
+					 }
+				     });             
+				  });
+			       };
+			}(jQuery));
+
+
+			$(function(){    
+			    $('#top-notification-wrapper').outside('click', function(e){
+				$(this).removeClass("down active");
+				a.down = false;
+			    });
+			});
+
+
+		}
+		return false;
+	});
+    }
+};
+	var parkVisible = false
+	function initPark() {
+		 $('#parkButton').click(function() {
+		if (parkVisible) {
+		  $('#parkForm').slideUp('slow', function() {
+		    // Animation complete.
+		  });
+		  $('#parkForm').addClass("hiddenPark")
+		  parkVisible = false;
+		} else {
+		  $('#parkForm').slideDown('slow', function() {
+		    // Animation complete.
+		  });
+		  $('#parkForm').removeClass("hiddenPark")
+		  parkVisible = true;
+		}
+		});
+	}
+
+		var map = null;
+		var reportLayer = null;
+		function initMap(){
+			map = new SAPO.Maps.Map("mapDiv");
+			map.addControl(new SAPO.Maps.Control.MapType());
+			map.addControl(new SAPO.Maps.Control.Navigation());
+			
+			search = new SAPO.Maps.Search(map, 'results');
+			search.registerEvent('selected', this, selected);
+			
+			reportLayer = new SAPO.Maps.Markers('Layer de reports');
+			map.addMarkers(reportLayer);
+			
+			// Remote call to see if the user is currently parked		
+			$.get(
+			    "/isParked",
+			    {}, function(data) {
+			    	if (data.longitude == null) {
+			    		disableUnpark();
+			    		return;
+			    	}
+			    
+			    	// place marker of the car in the PREVIOUSLY spot parked
+			    	marker = new SAPO.Maps.Marker(new OpenLayers.LonLat(data.longitude, data.latitude), {}, 
+			    	{
+						markerImage: '@{'/public/images/car.png'}',
+						markerAnchor: new OpenLayers.Pixel(-16, -32),
+						size: new OpenLayers.Size(32, 32)
+					});
+					
+			    	map.addOverlay(marker);
+			    	map.setMapCenter(new OpenLayers.LonLat(data.longitude, data.latitude), 15);
+			    	
+					// Remote call to check for recent reports in the area of the car
+				    $.ajax({
+				        url: '@{PrivateWeb.recentReports()}',
+				        success: function(reports) {
+				            $(reports).each(function() {
+				                display(this);
+				            });
+				        },
+				        complete: function() {
+				        },
+				        dataType: 'json'
+				    });
+			    }
+			);
+			
+		} 
+	
+		/*
+		 *  Location search for report
+		 */
+		var lastReportMarker = null;
+		var marker = null;
+		var search = null;
+		function getResults(){
+			if (marker) {
+				map.removeOverlay(marker);
+				marker = null;
+			}
+			var query = document.getElementById('location_search_input').value;
+			if (query.length == 0) {
+				return;
+			}
+			 
+			search.search(query);
+		}
+		
+		function selected(search, poi){
+			$.get(
+			    "/park/" + poi.Latitude + "/" + poi.Longitude,
+			    {}, function(data) {
+			    	enableUnpark();
+			    	
+			    	// clear the search list
+			    	search.cancel();
+					search.clear();
+					
+			    	// place marker of the car in the spot parked
+			    	marker = new SAPO.Maps.Marker(new OpenLayers.LonLat(poi.Longitude, poi.Latitude), {}, 
+			    	{
+						markerImage: '@{'/public/images/car.png'}',
+						markerAnchor: new OpenLayers.Pixel(-16, -32),
+						size: new OpenLayers.Size(32, 32)
+					});
+					
+			    	map.addOverlay(marker);
+			    	
+			    	// place a message to say it was parked successfully
+			    	marker.openPopup('Estacionado com sucesso');
+			    }
+			);
+		}
+		
+		/*
+		 *  Park on the map
+		 */
+		function setupParkJS(){
+			if (marker) {
+				map.removeOverlay(marker);
+				marker = null;
+			}
+			
+			marker = new SAPO.Maps.Marker(map.getMapCenter(), {draggable: true}, {
+						markerImage: '@{'/public/images/car.png'}',
+						markerAnchor: new OpenLayers.Pixel(-16, -32),
+						size: new OpenLayers.Size(32, 32)
+					});
+			map.addOverlay(marker);
+			
+			document.getElementById("park-map-button").onclick = submitParkWithMap;
+			document.getElementById("park-map-button").value = 'confirmar';
+			document.getElementById("park-cancel-button").disabled = false;
+		}
+		
+		function cancelPark(){
+			if (marker) {
+				map.removeOverlay(marker);
+				marker = null;
+			}
+			document.getElementById("park-cancel-button").disabled = true;
+			// return the map button to its original state
+			document.getElementById("park-map-button").onclick = setupParkJS;
+			document.getElementById("park-map-button").value = 'usar mapa'; 
+		}
+		
+		function submitParkWithMap(){
+			document.getElementById("park-cancel-button").disabled = true;
+			markerLonLat = marker.getLonLat();
+			$.get(
+			    "/park/" + markerLonLat.lat + "/" + markerLonLat.lon,
+			    {}, function(data) {
+			    	enableUnpark();
+			    	
+			    	// remove the initial marker used for the parking
+			 		if (marker) {
+						map.removeOverlay(marker);
+						marker = null;
+					}
+			    	
+			    	// place marker of the car in the spot parked
+			    	marker = new SAPO.Maps.Marker(markerLonLat, {}, {
+						markerImage: '@{'/public/images/car.png'}',
+						markerAnchor: new OpenLayers.Pixel(-16, -32),
+						size: new OpenLayers.Size(32, 32)
+					});
+			    	map.addOverlay(marker);
+			    	
+			    	// place a message to say it was parked successfully
+			    	marker.openPopup('Estacionado com sucesso');
+
+					// return the map button to its original state
+					document.getElementById("park-map-button").onclick = setupParkJS;
+					document.getElementById("park-map-button").value = 'usar mapa';  	
+			    }
+			);			
+		}
+		
+		
+		/*
+		 *  Report using the marker in the map
+		 */
+		function setupReportJS(){
+			
+			reportMarker = new SAPO.Maps.Marker(map.getMapCenter(), {draggable: true}, {
+						markerImage: '@{'/public/images/agent-logo.png'}',
+						markerAnchor: new OpenLayers.Pixel(-16, -32),
+						size: new OpenLayers.Size(32, 32)
+					});
+			lastReportMarker = reportMarker;
+			reportLayer.addMarker(reportMarker);
+			
+			document.getElementById("report-map-button").onclick = submitReportWithMap;
+			document.getElementById("report-map-button").value = 'confirmar';
+			document.getElementById("report-cancel-button").disabled = false;
+		}
+		
+		function cancelReport(){
+			if (lastReportMarker) {
+				reportLayer.removeMarker(lastReportMarker);
+				lastReportMarker = null;
+			}
+			document.getElementById("report-cancel-button").disabled = true;
+			// return the map button to its original state
+			document.getElementById("report-map-button").onclick = setupReportJS;
+			document.getElementById("report-map-button").value = 'usar mapa'; 
+		}
+		
+		function submitReportWithMap(){
+			document.getElementById("report-cancel-button").disabled = true;
+			markerLonLat = reportMarker.getLonLat();
+			$.get(
+			    "/report/" + markerLonLat.lat + "/" + markerLonLat.lon,
+			    {}, function(data) {
+			    	lastReportMarker.disableDragging();
+			    	
+			    	// place a message to say it was parked successfully
+			    	lastReportMarker.openPopup('Denúncia efectuada com sucesso');
+
+					// return the map button to its original state
+					document.getElementById("report-map-button").onclick = setupReportJS;
+					document.getElementById("report-map-button").value = 'usar mapa';  	
+			    }
+			);			
+		}
+		
+		
+		/*
+		 * unpark the car
+		 */
+		function unpark() {
+			if (marker) {
+				$.get(
+				    "/unpark",
+				    {}, function(data) {
+				    	disableUnpark();
+				    	if (marker) {
+				    		map.removeOverlay(marker);
+				    		marker = null;
+				    	}
+				    }
+				);
+			}
+		}
+		
+		function enableUnpark() {
+			document.getElementById("unpark-button").onclick = unpark;
+			document.getElementById("unpark-button").disabled = false;
+		}
+		
+		function disableUnpark() {
+			document.getElementById("unpark-button").onclick = null;
+			document.getElementById("unpark-button").disabled = true;
+		}
+		 
+		/*
+		 *  User current location
+		 */	
+		function simpleMarker(longitude, latitude){
+			var newMarker = new SAPO.Maps.Marker(new OpenLayers.LonLat(longitude, latitude));
+			map.addOverlay(newMarker);
+			return ( newMarker );
+		}
+	
+		function setlonlat(marker, longitude, latitude){
+			marker.setLonLat(new OpenLayers.LonLat(longitude, latitude));
+		}
+
+		// Check to see if this browser supports geolocation.
+		if (navigator.geolocation) {
+		 
+			// This is the location marker that we will be using on the map. Let's store a reference to it here so that it can be updated in several places.
+			var locationMarker = null;
+			 
+			// Get the location of the user's browser using the native geolocation service. When we invoke this method only the first callback is required. The second
+			// callback - the error handler - and the third argument - our configuration options - are optional.
+			navigator.geolocation.getCurrentPosition(
+				function( position ){
+					// Check to see if there is already a location. There is a bug in FireFox where this gets invoked more than once with a cached result.
+					if (locationMarker){
+						return;
+					}
+				 
+					// Log that this is the initial position.
+					console.log( "Initial Position Found" );
+				 
+					// Add a marker to the map using the position.
+					//locationMarker = simpleMarker(position.coords.longitude, position.coords.latitude);
+					if (!marker) {
+						map.setMapCenter(new OpenLayers.LonLat(position.coords.longitude, position.coords.latitude), 14);
+					}
+			 	},
+				function( error ){
+					console.log( "Something went wrong: ", error );
+				},
+				{
+					timeout: (5 * 1000),
+					maximumAge: (1000 * 60 * 15),
+					enableHighAccuracy: true
+				}
+			);
+			 
+			 
+			// Now that we have asked for the position of the user, let's watch the position to see if it updates. This can happen if the user physically moves, of if more
+			// accurate location information has been found (ex. GPS vs. IP address). NOTE: This acts much like the native setInterval(), invoking the given callback a number of times to
+			// monitor the position. As such, it returns a "timer ID" that can be used to later stop the monitoring.
+			var positionTimer = navigator.geolocation.watchPosition(
+				function( position ){ 
+					// Log that a newer, perhaps more accurate position has been found.
+					console.log( "Newer Position Found" );
+			 
+					// Set the new position of the existing marker.
+					if (locationMarker) {
+						setlonlat(locationMarker, position.coords.longitude, position.coords.latitude);
+					} else {
+						//locationMarker = simpleMarker(position.coords.longitude, position.coords.latitude);
+						if (!marker) {
+							map.setMapCenter(new OpenLayers.LonLat(position.coords.longitude, position.coords.latitude), 14);
+						}
+					}
+			 	}
+			);
+			 
+			// If the position hasn't updated within 5 minutes, stop monitoring the position for changes.
+			setTimeout(
+				function(){
+					// Clear the position watcher.
+					navigator.geolocation.clearWatch( positionTimer );
+				},
+				(1000 * 60 * 5)
+			);
+		}
+
+		var stopRecursiveAjax = false;
+		var getReports = function() {
+		    $.ajax({
+		        url: '@{PrivateWeb.anyNewReports()}',
+		        success: function(reports) {
+		            $(reports).each(function() {
+		                display(this);
+		            });
+		        },
+		        complete: function() {
+		        	if (!stopRecursiveAjax) {
+		            	getReports();
+		            }
+		        },
+		        error: function() {
+		        	stopRecursiveAjax = true;
+		        },
+		        dataType: 'json'
+		    });
+		}
+		
+		var display = function(report) {
+		    locationCenter = new OpenLayers.LonLat(report.longitude, report.latitude);
+		    
+		    var dateReport = new Date(report.date);
+		    
+		    document.getElementById("notification-hover-link").style.color = "#887755";
+		    $('#notification-hover-link').text("eventos!");
+		    
+		    $('#notification-hover-cont').prepend(
+		    		'<p> <a id="report' + report.id + '" href="#">' + dateReport.toLocaleTimeString() + ': Detectado um funcionário perto do seu carro!</a> </p><hr>'
+		    );
+			// Add javascript to a link/button in the notification that centers the map on that report
+		    document.getElementById("report" + report.id).onclick = function () {
+    			map.setMapCenter(locationCenter, 16);
+			};
+		    
+		    
+		    map.setMapCenter(locationCenter, 16);
+		    
+		    // Put an agent icon in that location
+    		reportMarker = new SAPO.Maps.Marker(locationCenter, {draggable: false}, {
+				markerImage: '@{'/public/images/agent-logo.png'}',
+				markerAnchor: new OpenLayers.Pixel(-16, -32),
+				size: new OpenLayers.Size(32, 32),
+				markerOpacity: report.fade
+			});
+			reportLayer.addMarker(reportMarker);
+			
+	    	// place a message to warn about the report
+	    	reportMarker.openPopup('Denúncia feita às ' + dateReport.toLocaleTimeString());
+		}
+		
+window.onload = function () { 
+	NotificationDropdown.init();
+	initMap();
+	initPark();
+	getReports();
+}
+</script>
+
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+      
+        <div class="container">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="#">ParkAlert</a>
+          <div class="nav-collapse">
+            <ul class="nav">
+              <!-- <li class="active"> -->
+		<li><a href="@{Application.index()}">início</a></li>
+		<li class="active"><a href="@{PrivateWeb.actions()}">mapa</a></li>
+		<li><a href="@{PrivateWeb.ranking()}">ranking</a></li>
+		<li><a href="@{PrivateWeb.stats()}">stats</a></li>
+
+	    <li id="top-notification-wrapper" class="">
+			<a id="notification-hover-link" href="#">eventos</a>
+	        <div id="notification-hover-cont" class="offscreen chat-bubble">
+	        	Tudo está calmo.
+	    	</div>
+		</li>
+
+    </ul>
+   	<ul class="nav pull-right">
+		<li><a href="@{PrivateWeb.logout()}">sair</a></li>
+	</ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+
+      <!-- Main hero unit for a primary marketing message or call to action -->
+      <div class="hero-unit">
+	<div class="row">
+		<div class="span4">
+
+		  <div class="tabbable" style="margin-bottom: 18px;">
+			<ul class="nav nav-tabs">
+			  <li class="active"><a href="#tab1" data-toggle="tab" style="padding-right: 12px; padding-left: 12px; padding-bottom: 38px; margin-right: 2px; line-height: 14px;">-</a></li>
+			  <li class=""><a href="#tab2" data-toggle="tab" style="padding-right: 0px; padding-left: 0px; margin-right: 0px; line-height: 0px;"><img src=@{'/public/images/estacionarpressionado.png'} width="75" height="48"/></a></li>
+			  <li class=""><a href="#tab3" data-toggle="tab" style="padding-right: 0px; padding-left: 0px; margin-right: 0px; line-height: 0px;"><img src=@{'/public/images/localizarpressionado.png'} width="75" height="48"/></a></li>
+			  <li class=""><a href="#tab4" data-toggle="tab" style="padding-right: 0px; padding-left: 0px; margin-right: 0px; line-height: 0px;"><img src=@{'/public/images/removerpressionado.png'} width="75" height="48"/></a></li>
+			</ul>
+			<div class="tab-content" style="padding-bottom: 9px; border-bottom: 1px solid rgb(221, 221, 221);">
+			  <div class="tab-pane active" id="tab1">
+			    <p>Escolha uma acção.</p>
+			  </div>
+			  <div class="tab-pane" id="tab2">
+			    <input id="park-map-button" type='button' onclick='setupParkJS();' value='usar mapa' />
+				<input id="park-cancel-button" type='button' disabled="disabled" onclick='cancelPark();' value='cancelar' />
+				<div style='clear:both'>
+					<input id='location_search_input' type='text'/>
+					<input type='button' onclick='getResults();' value='procurar' />
+				</div>
+				<div id='results' style='text-decoration: none; height:370px; overflow-y: scroll;'></div>
+			  </div>
+			  <div class="tab-pane" id="tab3">
+			    <input id="report-map-button" type='button' onclick='setupReportJS();' value='denunciar no mapa' />
+			    <input id="report-cancel-button" type='button' disabled="disabled" onclick='cancelReport();' value='cancelar' />
+			  </div>
+			  <div class="tab-pane" id="tab4">
+			  	<p>Confirme que quer remover o carro:</p>
+			  	<input id="unpark-button" type='button' onclick='unpark();' value='remover' />
+			  </div>
+			</div>
+		  </div> <!-- /tabbable -->
+
+		</div>
+
+		<div class="span5">
+			<div id="mapDiv" style="width: 120%; height: 500px"/>
+		</div>
+	</div>
+	</div>
+
+      </div>
+
+      <hr>
+      <footer>
+	<p><a href="http://emelalert.blogs.sapo.pt/">blog</a>&nbsp;&#124;&nbsp;<a href="#">ajuda</a></p>
+        <p>ParkAlert ajuda-o com o estacionamento. Copyright &copy;2012</p>
+      </footer>
+
+    </div> <!-- /container -->

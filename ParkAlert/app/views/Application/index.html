@@ -1,0 +1,214 @@
+#{extends 'main.html' /}
+
+<script src="@{'/public/javascripts/jquery.bxSlider.min.js'}" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+(function($){	
+	$(function(){
+	  $('#slider1').bxSlider({
+	    auto: false,
+	    pager: true
+	  });
+	});
+}(jQuery))
+
+var LoginDropdown = {
+    init: function () {
+        var a = document.getElementById('login-hover-link');
+		a.down = false;  
+        if (!a) {
+            return
+        }
+		a.onclick = (function () {
+		if (a.down) {
+			$(this).parent().removeClass("down active");
+			a.down = false;
+		} else {
+			var b = $(this).parent().addClass("down active");
+			a.down = true;
+		        document.getElementById('username_elm').focus();
+
+			(function($){
+			       $.fn.outside = function(ename, cb){
+				  return this.each(function(){
+				     var $this = $(this),
+					 self = this;
+				     $(document.body).bind(ename, function tempo(e){
+					 if(e.target !== self && !$.contains(self, e.target)){
+					    cb.apply(self, [e]);
+					    if(!self.parentNode) $(document.body).unbind(ename, tempo);
+					 }
+				     });             
+				  });
+			       };
+			}(jQuery));
+
+
+			$(function(){    
+			    $('#top-login-wrapper').outside('click', function(e){
+				$(this).removeClass("down active");
+				a.down = false;
+			    });
+			});
+
+
+		}
+		return false;
+	});
+		#{if reload}
+			a.click();
+		#{/if}      
+    }
+};
+
+window.onload = function () { LoginDropdown.init(); }
+
+</script>
+
+<div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+	<a class="brand" href="#">ParkAlert</a>
+          <div class="nav-collapse">
+            <ul class="nav pull-left">
+              <!-- <li class="active"> -->
+		<li class="active"><a href="@{Application.index()}">início</a></li>
+		<li><a href="@{PrivateWeb.actions()}">mapa</a></li>
+		<li><a href="@{PrivateWeb.ranking()}">ranking</a></li>
+		<li><a href="@{PrivateWeb.stats()}">stats</a></li>
+	    </ul>
+            <ul class="nav pull-right">
+		<li><a href="@{Application.register()}">registar</a></li>
+
+    <li id="top-login-wrapper" class="">
+	<a id="login-hover-link" >entrar</a>
+        <div id="login-hover-cont" class="offscreen chat-bubble">
+         #{form @Application.doLogin()}
+			#{ifErrors}
+			    <p class="error">
+			        ${errors[0]}
+			    </p>
+			#{/ifErrors}
+            <div class="sick-input small">
+              <label for="username_elm">Username:</label>
+              <input id="username_elm" type="text" name="username" tabindex="1" />
+            </div>
+            <div class="sick-input small">
+              <label for="password_elm">Palavra-chave:</label>
+              <input type="password" id="password_elm" name="password" tabindex="2" />
+            </div>
+            <p style="margin-bottom: 0.5em; line-height: 28px;">
+                <input type="submit" value="Entrar" class="freshbutton-blue" tabindex="4" id="toplogin-submit" />
+            </p>
+            <p class="forgot-pwd">
+                <a id="forgot-pwd-link" href="#">esqueci-me da password</a>
+            </p>
+        #{/form}
+		<hr>
+			<a href="@{PrivateWeb.actions()}">Entrar via facebook ou twitter</a>
+       </div>
+	</li>
+
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+
+	<!-- Main hero unit for a primary marketing message or call to action -->
+	<div class="hero-unit">
+		<div class="row">
+			<div id="slider1">
+				<div>
+		  			<div class="span4 offset1">
+		    			<h1>Em qualquer sítio</h1>
+	            		<p>Saiba no smartphone quando o seu carro estiver em perigo de multa.</p>
+	            		<p><a class="btn btn-warning btn-large" style="padding: 14px 19px; font-size: 20px" href="@{PrivateWeb.actions()}">Entrar &raquo;</a></p>
+		  			</div> <!-- end of span6 -->
+			  		<div class="span4">
+			    		<img src=@{'/public/images/smartphone.png'} width="231" height="417"/>
+		  			</div> <!-- end of span3 -->
+				</div>
+				<div>
+		  			<div class="span4 offset1">
+			    		<h1>Ajude os outros</h1>
+	            		<p>Ganhe alertas ao reportar funcionários. Desta forma será também avisado quando estacionar o seu carro.</p>
+	            		<p><a class="btn btn-warning btn-large" style="padding: 14px 19px; font-size: 20px" href="@{PrivateWeb.actions()}">Entrar &raquo;</a></p>
+		  			</div> <!-- end of span6 -->
+		  			<div class="span5">
+			    		<img src=@{'/public/images/tablet.png'} width="300" height="193"/>
+		  			</div> <!-- end of span3 -->
+				</div>
+				<div>
+		  			<div class="span4 offset1">
+			    		<h1>Versatilidade</h1>
+	            		<p>Todas as funcionalidades presentes em Android e versão web.</p>
+	            		<p><a class="btn btn-warning btn-large" style="padding: 14px 19px; font-size: 20px" href="@{PrivateWeb.actions()}">Entrar &raquo;</a></p>
+		  			</div> <!-- end of span6 -->
+		  			<div class="span5">
+			    		<img src=@{'/public/images/laptop.png'} width="350" height="197"/>
+		  			</div> <!-- end of span3 -->
+				</div>
+			</div>
+		</div> <!-- end of row -->
+	</div> <!-- end of hero-unit --> 
+
+      <!-- Example row of columns -->
+      <div class="row">
+        <div class="span3">
+          <h2>1 - Estacionar</h2>
+           <p>Sempre que estacionar, marque a sua localização via aplicação Android ou neste site.</p>
+        </div>
+        <div class="span3 offset1">
+          <h2>2 - Notificações</h2>
+           <p>Esteja atento ao seu telemóvel e/ou site. Se alguém fizer um aviso na zona do seu carro, informamo-lo! Quando sair, remova o seu carro de forma similar ao estacionamento.</p>
+       </div>
+        <div class="span3 offset1">
+          <h2>3 - Dar de volta</h2>
+          <p>Se fôr ajudado, foi porque alguém contribui para tal. Deve usar sempre as nossas aplicações para reportar fiscalizações que detectar, e dessa forma ajudar os outros.</p>
+        </div>
+      </div>
+
+      <hr>
+	<div class="row">
+	  <div class="span2 offset2" style="margin-top: 30px; margin-right: 75px">
+		<a href="http://play.google.com/store/apps/details?id=not.yet.implemented">
+		  <img alt="Android app on Google Play"
+		       src="http://www.android.com/images/brand/android_app_on_play_logo_large.png" />
+		</a>
+	  </div>
+	  <div class="span2">
+		<div class="row" style="margin-left: -125px; margin-bottom: -20px">
+		  <img src=@{'/public/images/arrow-left.png'} />
+		</div>
+		<div class="row try-out">
+		Experimente
+		</div>
+		<div class="row" style="margin-left: 75px; margin-top: -10px">
+		  <img src=@{'/public/images/arrow-right.png'} />
+		</div>
+	  </div>
+	  <div class="span3">
+		<div class="row" style="margin-left: 20px">
+			<a class="btn btn-warning btn-large" style="text-align: center; padding: 11px 17px; font-size: 18px" href="@{Application.register()}">Registar &raquo;</a>
+		</div>
+		<div class="row try-out" style="margin-left: 2px">
+			Ou no browser
+		</div>
+	  </div>
+	</div>
+
+
+      <hr>
+      <footer>
+	<p><a href="http://emelalert.blogs.sapo.pt/">blog</a>&nbsp;&#124;&nbsp;<a href="#">ajuda</a></p>
+        <p>ParkAlert ajuda-o com o estacionamento. Copyright &copy;2012</p>
+      </footer>
+
+    </div> <!-- /container -->

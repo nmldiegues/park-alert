@@ -1,0 +1,83 @@
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee" version="2.4"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http:/java.sun.com/dtd/web-app_2_3.dtd">
+  <servlet>
+    <servlet-name>ParkServlet</servlet-name>
+    <servlet-class>codebits.ParkServlet</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>CancelParkServlet</servlet-name>
+    <servlet-class>codebits.CancelParkServlet</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>UpdateServlet</servlet-name>
+    <servlet-class>codebits.UpdateServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>ReportServlet</servlet-name>
+    <servlet-class>codebits.ReportServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>ConfirmServlet</servlet-name>
+    <servlet-class>codebits.ConfirmServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>RefuseServlet</servlet-name>
+    <servlet-class>codebits.RefuseServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>PremiumServlet</servlet-name>
+    <servlet-class>codebits.PremiumServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>UserRankServlet</servlet-name>
+    <servlet-class>codebits.UserRankServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>ParkServlet</servlet-name>
+    <url-pattern>/park</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>CancelParkServlet</servlet-name>
+    <url-pattern>/cancel</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>ReportServlet</servlet-name>
+    <url-pattern>/report</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>UpdateServlet</servlet-name>
+    <url-pattern>/update</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>ConfirmServlet</servlet-name>
+    <url-pattern>/confirm</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>RefuseServlet</servlet-name>
+    <url-pattern>/refuse</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>PremiumServlet</servlet-name>
+    <url-pattern>/premium</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>UserRankServlet</servlet-name>
+    <url-pattern>/userRank</url-pattern>
+  </servlet-mapping>
+</web-app>

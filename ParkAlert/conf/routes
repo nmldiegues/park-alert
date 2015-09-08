@@ -1,0 +1,86 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+POST	/login									Application.doLogin
+
+*       /                                       module:secure
+
+# Home page
+GET     /                                       Application.index
+
+GET		/register								Application.register
+
+POST	/register								Application.doRegister
+
+GET		/fbLogin/{uid}/{fbToken}				Application.facebookLogin
+
+GET		/ranking								PrivateWeb.ranking
+
+GET		/stats									PrivateWeb.stats
+
+GET		/map									PrivateWeb.actions
+
+GET		/park/{latitude}/{longitude}			PrivateWeb.park
+
+GET		/isParked								PrivateWeb.isParked
+
+GET		/unpark									PrivateWeb.unpark
+
+GET		/report/{latitude}/{longitude}			PrivateWeb.report
+
+GET		/anyNewReports							PrivateWeb.anyNewReports	
+
+GET		/recentReports							PrivateWeb.recentReports
+
+GET	    /getRanks								PrivateWeb.getRanks			
+
+GET		/logout									PrivateWeb.logout
+
+GET		/user/{username}						Android.user
+
+GET		/registAndroid/{tokenId}/{tokenValue}/{registID}		Android.registAndroid
+
+POST	/newuser								Android.newUser
+
+POST	/registrationID							Android.registrationID
+
+GET		/newReport/{tokenId}/{tokenValue}/{type}/{latitude}/{longitude}								Android.newReport
+
+GET		/login/{username}/{passwordAttempted}	Android.loginNormal
+
+POST	/revalidateToken						Android.revalidateToken
+
+POST	/androidFbLogin							Android.loginFacebook
+
+POST	/androidTwitLogin						Android.loginTwitter
+
+POST	/parkRemote								Android.parkRemote
+
+POST	/removeParkRemote						Android.removeParkRemote
+
+GET 	/confirmNotif/{nid}						Android.confirmNotif
+
+GET		/denyNotif/{nid}						Android.denyNotif
+
+GET		/fetchReports/{tokenId}/{tokenValue}	Android.recentReports
+
+GET		/fetchParkState/{tokenId}/{tokenValue}	Android.parkState
+
+GET		/getReport/{tokenId}/{tokenValue}/{reportId}	Android.getReport
+
+GET	    /getRanks/{tokenId}/{tokenValue}/{amount}		Android.getRanks
+
+GET		/closeReports/{tokenId}/{tokenValue}/{latitude}/{longitude}								Android.closeReports
+
+# Ignore favicon requests
+GET     /favicon.ico                            404
+
+# Map static resources from the /app/public folder to the /public path
+GET     /public/                                staticDir:public
+
+# Import Secure routes
+*       /                                       module:secure
+
+# Catch all
+*       /{controller}/{action}                  {controller}.{action}

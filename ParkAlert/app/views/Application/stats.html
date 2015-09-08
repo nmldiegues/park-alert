@@ -1,0 +1,129 @@
+#{extends 'main.html' /}
+
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="#">ParkAlert</a>
+          <div class="nav-collapse">
+            <ul class="nav">
+              <!-- <li class="active"> -->
+		<li><a href="@{Application.index()}">início</a></li>
+		<li><a href="@{PrivateWeb.actions()}">mapa</a></li>
+		<li><a href="@{PrivateWeb.ranking()}">ranking</a></li>
+		<li class="active"><a href="@{PrivateWeb.stats()}">stats</a></li>
+	    </ul>
+	       	<ul class="nav pull-right">
+		<li><a href="@{PrivateWeb.logout()}">sair</a></li>
+	</ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+
+      <!-- Main hero unit for a primary marketing message or call to action -->
+      <div class="hero-unit">
+	<div class="offset1 row">
+		<div class="span4">
+			<div class="well" style="padding: 8px 10pt;">
+				<h3>Multas</h3>
+				<p>Avisámo-lo ${reportsToUser.size()} vezes que iria ser multado.</p>
+			        <p><a class="btn" href="#" onclick="if (${reportsToUser.size()} > 0) { var e = document.getElementById('more-notifications'); if (e.style.display == 'block') { e.style.display ='none'; } else { e.style.display = 'block'; } }">Saber mais &raquo;</a></p>
+			    <div class="well" id="more-notifications" style="display:none" >
+			    	#{list items: (reportsToUser.size() > 5 ? reportsToUser[0..5] : reportsToUser), as:'report'}
+			    		${report.getDateString()} feito via ${report.type}<br>
+			    	#{/list}
+			    	#{if reportsToUser.size() > 5}
+			    		<br>...<br>
+			    	#{/if}
+			    </div>
+			</div>
+		</div>
+		<div class="span4">
+			<div class="well" style="padding: 8px 10pt;">
+				<h3>Tempo perdido</h3>
+				<p>Evitou ${roundTrips} deslocações ao seu carro.</p>
+			        <p><a class="btn" href="#" onclick="if (${roundTrips} > 0) { var e = document.getElementById('more-reports'); if (e.style.display == 'block') { e.style.display ='none'; } else { e.style.display = 'block'; } }">Saber mais &raquo;</a></p>
+				<div class="well" id="more-reports" style="display:none" >
+			    	#{list items: (parks.size() > 5 ? parks[0..5] : parks), as:'park'}
+			    		#{if park.timeParked > 0 && roundTrips > 0}
+			    			${park.date.toLocaleString()} durante ${park.getParkedTime()}<br>
+			    		#{/if}
+			    	#{/list}
+			    	#{if parks.size() > 5}
+			    		<br>...<br>
+			    	#{/if}
+			    </div>
+			</div>
+		</div>
+	</div>
+	<div class="row" style="margin-left:70px">
+		<div class="span3">
+			<div class="well" style="padding: 8px 10pt;">
+				<h3>Poupança</h3>
+				<p>Já poupou ${savedMoney}€ em ${days} dias.</p>
+			        <p><a class="btn" href="#" onclick="if (${savedMoney} > 0) { var e = document.getElementById('more-money'); if (e.style.display == 'block') { e.style.display ='none'; } else { e.style.display = 'block'; } }">Saber mais &raquo;</a></p>
+			 	<div class="well" id="more-money" style="display:none" >
+			    	#{list items:(parks.size() > 5 ? parks[0..5] : parks), as:'park'}
+			    		#{if park.timeParked > 0 && savedMoney > 0}
+			    			${park.date.toLocaleString()} poupou ${park.getCost()}<br>
+			    		#{/if}
+			    	#{/list}
+			    	#{if parks.size() > 5}
+			    		<br>...<br>
+			    	#{/if}
+			    </div>
+			</div>
+		</div>
+		<div class="span3">
+			<div class="well" style="padding: 8px 10pt;">
+				<h3>Samaritano</h3>
+				<p>Ajudou ${reportsThatHelped.size()} pessoas.</p>
+			        <p><a class="btn" href="#" onclick="if (${reportsThatHelped.size()} > 0) { var e = document.getElementById('more-helped'); if (e.style.display == 'block') { e.style.display ='none'; } else { e.style.display = 'block'; } }">Saber mais &raquo;</a></p>
+			    <div class="well" id="more-helped" style="display:none" >
+			    	#{list items:(reportsThatHelped.size() > 5 ? reportsThatHelped[0..5] : reportsThatHelped), as:'report'}
+			    		#{if reportsThatHelped.size() > 0}
+			    			${report.getDateString()} feito por si via ${report.type}<br>
+			    		#{/if}
+			    	#{/list}
+			    	#{if reportsThatHelped.size() > 5}
+			    		<br>...<br>
+			    	#{/if}
+			    </div>   
+			</div>
+		</div>
+		<div class="span3">
+			<div class="well" style="padding: 8px 10pt;">
+				<h3>Participação</h3>
+				<p>Estacionou ${parks.size()} vezes e reportou ${reports.size()} funcionários.</p>
+			        <p><a class="btn" href="#" onclick="if (${parks.size()} > 0 || ${reports.size()} > 0) { var e = document.getElementById('more-participation'); if (e.style.display == 'block') { e.style.display ='none'; } else { e.style.display = 'block'; } }">Saber mais &raquo;</a></p>
+			 	<div class="well" id="more-participation" style="display:none" >
+			    	#{list items:(parks.size() > 5 ? parks[0..5] : parks), as:'park'}
+			    			Estacionou às ${park.date.toLocaleString()}<br>
+			    	#{/list}
+			    	#{list items:reports, as:'report'}
+			    			Reportou um funcionário às ${report.getDateString()} via ${report.type}<br>
+			    	#{/list}
+			    	#{if parks.size() > 5}
+			    		<br>...<br>
+			    	#{/if}
+			    </div>       
+			</div>
+		</div>
+	</div>
+      </div>
+
+      <hr>
+      <footer>
+	<p><a href="http://emelalert.blogs.sapo.pt/">blog</a>&nbsp;&#124;&nbsp;<a href="#">ajuda</a></p>
+        <p>ParkAlert ajuda-o com o estacionamento. Copyright &copy;2012</p>
+      </footer>
+
+    </div> <!-- /container -->
+

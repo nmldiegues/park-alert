@@ -1,0 +1,73 @@
+#{extends 'main.html' /}
+
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="#">ParkAlert</a>
+          <div class="nav-collapse">
+            <ul class="nav">
+              <!-- <li class="active"> -->
+		<li><a href="@{Application.index()}">início</a></li>
+		<li><a href="@{PrivateWeb.actions()}">mapa</a></li>
+		<li class="active"><a href="@{PrivateWeb.ranking()}">ranking</a></li>
+		<li><a href="@{PrivateWeb.stats()}">stats</a></li>
+	    </ul>
+	       	<ul class="nav pull-right">
+		<li><a href="@{PrivateWeb.logout()}">sair</a></li>
+	</ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+
+      <!-- Main hero unit for a primary marketing message or call to action -->
+      <div class="hero-unit">
+	<div class="row">
+	<div class="span6">
+	<h3>Ranking</h3>
+
+		<table class="table table-bordered table-striped" id="rankings" style="border: 2px #003366 groove;">
+			<tr>
+				<th style="background-color: #FFDE00; text-align: center; font-weight:bold; font-size:15px; border: 1px #003366 groove;">Posição</th>
+				<th style="background-color: #FFDE00; text-align: center; font-weight:bold; font-size:15px; border: 1px #003366 groove;">Utilizador</th>
+				<th style="background-color: #FFDE00; text-align: center; font-weight:bold; font-size:15px; border: 1px #003366 groove;">Pontuação</th>
+			</tr>
+			#{list items:ranks, as:'rank'}
+			<tr>
+				#{if rank.requester}
+					<th style="background-color: #0099CC; text-align: center; border: 1px #003366 groove;"> ${rank.rank}</th>
+					<th style="background-color: #0099CC; text-align: center; border: 1px #003366 groove;"> ${rank.username}</th>
+					<th style="background-color: #0099CC; text-align: center; border: 1px #003366 groove;">${rank.score}</th>
+				#{/if}
+				#{else}
+					<th style="text-align: center; border: 1px #003366 groove;">${rank.rank}</th>
+					<th style="text-align: center; border: 1px #003366 groove;">${rank.username}</th>
+					<th style="text-align: center; border: 1px #003366 groove;">${rank.score}</th>
+				#{/else}
+			</tr>
+			#{/list}
+		</table>
+
+
+	</div>
+	<div class="span3">
+		<img src=@{'/public/images/logo-new.png'} width="285px" height="200px" style="margin-top:25px"/>
+	</div>
+	</div>
+      </div>
+
+      <hr>
+      <footer>
+	<p><a href="http://emelalert.blogs.sapo.pt/">blog</a>&nbsp;&#124;&nbsp;<a href="#">ajuda</a></p>
+        <p>ParkAlert ajuda-o com o estacionamento. Copyright &copy;2012</p>
+      </footer>
+
+    </div> <!-- /container -->
+

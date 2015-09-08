@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="hello">Hello World, ParkAlertActivity!</string>
+    <string name="app_name">ParkAlert</string>
+    
+    <string name="maplocations">Mapa de Localizações</string>
+    <string name="parkaction">Estacionar o seu carro</string>
+    <string name="confirmpark">Confirmar localização?</string>
+    <string name="parksuccess">O seu carro foi estacionado com sucesso</string>
+    <string name="unparksucess">O seu carro foi removido com sucesso</string>
+    <string name="notifsucess">Obrigado pela sua participação.</string>
+    
+    <string name="register">Registo</string>
+    <string name="registerformutilizador">Utilizador:</string>
+    <string name="registerformphone">Nº deste Telemóvel:</string>
+    <string name="registerformemail">E-mail:</string>
+    <string name="registerformpalavrachave">Palavra-Chave:</string>
+    <string name="registerformconfirm">Confirmar Palavra-Chave:</string>
+    <string name="wrongpassword">As palavras-chave não são iguais</string>
+    
+    <string name="oumsg"> ou </string>
+    
+    <string name="login">Entrar</string>
+    <string name="loginformutilizador">Utilizador:</string>
+    <string name="loginformpalavrachave">Palavra-Chave:</string>
+    
+    <string name="carparked">O seu carro</string>
+	<string name="agentlocateaction">Localize Funcionário</string>
+    <string name="spotsuccess">Funcionário Localizado com sucesso</string>
+    <string name="agentspotted">Funcionário</string>
+
+    <string name="leaderboard">Pontuação</string>
+    <string name="user">Utilizador</string>
+    <string name="points">Pontuação</string>
+
+    <string name="offline">Perdeu a sua ligação à Internet</string>
+    <string name="restart">Reiniciar</string>
+
+    <string name="confirmTitle">Confirmação</string>
+    <string name="confirmNotification">Deseja confirmar esta denuncia?</string>
+    <string name="yes">Sim</string>
+    <string name="no">Não</string>
+    
+    <string name="fillFields">Preencha todos os campos</string>
+    <string name="wrongLogin">Username e/ou password incorrectos</string>
+    <string name="wrongNumber">O número de telemóvel está errado</string>
+    <string name="usernameInUse">O username já está em uso</string>
+    <string name="emailWrong">O email está incorrecto</string>
+	<string name="jsonProblems">Não use caractéres estranhos</string>
+	<string name="mismatchPasswords">Confirme a sua password</string>
+    <string name="empty"></string>
+	
+</resources>

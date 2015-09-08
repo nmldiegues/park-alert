@@ -1,0 +1,122 @@
+#{extends 'main.html' /}
+
+<div id="fb-root"></div>
+  <script>
+    window.fbAsyncInit = function() {
+      FB.init({
+        appId      : '414209645276563',
+        status     : true, 
+        cookie     : true,
+        xfbml      : true
+      });
+    };
+    
+        (function(d){
+           var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
+           if (d.getElementById(id)) {return;}
+           js = d.createElement('script'); js.id = id; js.async = true;
+           js.src = "//connect.facebook.net/en_US/all.js";
+           ref.parentNode.insertBefore(js, ref);
+         }(document));
+     
+   function fbClick() {
+	  FB.getLoginStatus(function(response) {
+	    if (response.status === 'connected') {
+	        var uid = response.authResponse.userID;
+			var accessToken = response.authResponse.accessToken;
+			location.href="/fbLogin/" + uid + "/" + accessToken;
+		} else {
+	      	FB.Event.subscribe('auth.authResponseChange', function(response) {
+				FB.getLoginStatus(function(response) {
+				  if (response.status === 'connected') {
+				    var uid = response.authResponse.userID;
+				    var accessToken = response.authResponse.accessToken;
+				    location.href="/fbLogin/" + uid + "/" + accessToken;
+				  } else if (response.status === 'not_authorized') {
+				    // the user is logged in to Facebook, 
+				    // but has not authenticated your app
+				    	alert('User logged in but not authenticated your app');
+				  } else {
+				    // the user isn't logged in to Facebook.
+				    	alert('User not logged in');
+				  }
+				});
+			});
+		}
+	  });
+	}
+ 
+     
+  </script>
+
+<div class="navbar navbar-fixed-top">
+	<div class="navbar-inner">
+		<div class="container">
+			<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            	<span class="icon-bar"></span>
+            	<span class="icon-bar"></span>
+            	<span class="icon-bar"></span>
+          	</a>
+			<a class="brand" href="#">ParkAlert</a>
+          	<div class="nav-collapse">
+            	<ul class="nav pull-left">
+					<li><a href="@{Application.index()}">início</a></li>
+					<li><a href="@{PrivateWeb.actions()}">mapa</a></li>
+					<li><a href="@{PrivateWeb.ranking()}">ranking</a></li>
+					<li><a href="@{PrivateWeb.stats()}">stats</a></li>
+	    		</ul>
+            	<ul class="nav pull-right">
+					<li><a href="@{Application.register()}">registar</a></li>
+    				<li class="active"><a href="">entrar</a></li>
+            	</ul>
+          	</div><!-- nav-collapse -->
+		</div><!-- container -->
+	</div><!-- navbar-inner -->
+</div><!-- navbar -->
+
+<div class="container">
+	<div class="hero-unit">
+		<div class="row">
+			<div class="offset2 span3">
+				<div id="login-full" class="chat-bubble">
+					#{form @authenticate()}
+						#{ifErrors}
+							<p class="error">
+								${errors[0]}
+						    </p>
+						#{/ifErrors}
+			            <div class="sick-input small">
+				            <label for="username_elm">Username:</label>
+				            <input id="username_elm" type="text" name="username" tabindex="1" />
+			            </div>
+			            <div class="sick-input small">
+			              	<label for="password_elm">Palavra-chave:</label>
+			              	<input type="password" id="password_elm" name="password" tabindex="2" />
+			            </div>
+			            <p style="margin-bottom: 0.5em; line-height: 28px;">
+			                <input type="submit" value="Entrar" class="freshbutton-blue" tabindex="4" id="toplogin-submit" />
+			            </p>
+			            <hr>
+			            <p class="forgot-pwd">
+			                <a id="forgot-pwd-link" href="#">esqueci-me da password</a>
+			            </p>
+			        #{/form}
+					<hr>
+					<div style="margin-left: 30px">
+						<div class="fb-login-button" id="fb-btn" onlogin="fbClick()" scope="user_about_me,email">Login with Facebook</div>
+					</div>
+				</div><!-- login-full -->
+			</div><!-- span3 -->
+			<div style="margin-top: 80px" class="span3">
+				<img src=@{'/public/images/logo-new.png'} height="450" width="200" />
+			</div>
+		</div><!-- row -->
+	</div>
+
+    <hr>
+    <footer>
+	<p><a href="http://emelalert.blogs.sapo.pt/">blog</a>&nbsp;&#124;&nbsp;<a href="#">ajuda</a></p>
+        <p>ParkAlert ajuda-o com o estacionamento. Copyright &copy;2012</p>
+    </footer>
+    
+</div> <!-- /container -->

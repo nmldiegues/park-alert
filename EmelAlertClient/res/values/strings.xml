@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="hello">Click the button to indicate that you\'re ready to be warned of EMEL employees!</string>
+    <string name="app_name">EmelAlertClient</string>
+    <string name="parkButtonLabel">Park Here</string>
+    <string name="notif">Someone has spotted an EMEL employee near your car!</string>
+    <string name="emel_spotted">EMEL Spotted!!</string>
+    <string name="spot_string">Spot EMEL</string>
+    <string name="spot_map_string">Spot EMEL on map</string>
+    <string name="unpark_button_string">Unpark</string>
+    <string name="statistics">View statistics</string>
+    <string name="statisticsTitle">Statistics</string>
+    <string name="mapVoteYes">Confirm</string>
+    <string name="mapVoteNo">Refuse</string>
+    <string name="touchToSpot">Tap in the map</string>
+    <string name="validTip">Valid Tip?</string>
+
+</resources>
